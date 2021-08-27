@@ -267,16 +267,16 @@
         
     #Need to figure out how to do the L attribute
     $description = 'Created with secframe.com/badblood.'
-    $pwd = New-SWRandomPassword -MinPasswordLength 6 -MaxPasswordLength 12
-    #======================================================================
-    # 
-    
-    $passwordinDesc = 1..1000|get-random
-        
+    $percentage = 1..100|get-random
+    if ($percentage -lt 10) { 
+        $pwd = get-content("$($scriptpath)\Passwords\10-million-password-list-top-1000.txt")|get-random
+    } else {
         $pwd = New-SWRandomPassword -MinPasswordLength 6 -MaxPasswordLength 12
-            if ($passwordinDesc -lt 10) { 
-                $description = 'Just so I dont forget my password is ' + $pwd 
-            }else{}
+        $passwordinDesc = 1..1000|get-random
+        if ($passwordinDesc -lt 10) { 
+            $description = 'Just so I dont forget my password is ' + $pwd 
+        }else{}
+    }
     if($name.length -gt 20){
         $name = $name.substring(0,20)
     }
