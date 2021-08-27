@@ -142,7 +142,7 @@
                        ParameterSetName='RandomLength')]
             [ValidateScript({$_ -gt 0})]
             [Alias('Min')] 
-            [int]$MinPasswordLength = 12,
+            [int]$MinPasswordLength = 6,
             
             # Specifies maximum password length
             [Parameter(Mandatory=$false,
@@ -151,7 +151,7 @@
                     if($_ -ge $MinPasswordLength){$true}
                     else{Throw 'Max value cannot be lesser than min value.'}})]
             [Alias('Max')]
-            [int]$MaxPasswordLength = 20,
+            [int]$MaxPasswordLength = 12,
     
             # Specifies a fixed password length
             [Parameter(Mandatory=$false,
@@ -161,7 +161,7 @@
             
             # Specifies an array of strings containing charactergroups from which the password will be generated.
             # At least one char from each group (string) will be used.
-            [String[]]$InputStrings = @('abcdefghijkmnpqrstuvwxyz', 'ABCEFGHJKLMNPQRSTUVWXYZ', '23456789', '!#%&'),
+            [String[]]$InputStrings = @('abcd', 'ABCED', '12345', '!'),
     
             # Specifies a string containing a character group from which the first character in the password will be generated.
             # Useful for systems which requires first char in password to be alphabetic.
@@ -244,15 +244,15 @@
     
     
     $accountType = 1..100|get-random 
-    if($accountType -le 3){ # X percent chance of being a service account
+    if($accountType -le 5){ # X percent chance of being a service account
     #service
-    $nameSuffix = "SA"
     $description = 'Created with secframe.com/badblood.'
     #removing do while loop and making random number range longer, sorry if the account is there already
     # this is so that I can attempt to import multithreading on user creation
     
-        $name = ""+ (Get-Random -Minimum 100 -Maximum 9999999999) + "$nameSuffix"
-        
+        $name = "svc_"+ (Get-Random -Minimum 100 -Maximum 9999999999)
+        $givenname = ""
+        $surname = $name
         
     }else{
         $surname = get-content("$($scriptpath)\Names\familynames-usa-top1000.txt")|get-random
@@ -267,13 +267,13 @@
         
     #Need to figure out how to do the L attribute
     $description = 'Created with secframe.com/badblood.'
-    $pwd = New-SWRandomPassword -MinPasswordLength 22 -MaxPasswordLength 25
+    $pwd = New-SWRandomPassword -MinPasswordLength 6 -MaxPasswordLength 12
     #======================================================================
     # 
     
     $passwordinDesc = 1..1000|get-random
         
-        $pwd = New-SWRandomPassword -MinPasswordLength 22 -MaxPasswordLength 25
+        $pwd = New-SWRandomPassword -MinPasswordLength 6 -MaxPasswordLength 12
             if ($passwordinDesc -lt 10) { 
                 $description = 'Just so I dont forget my password is ' + $pwd 
             }else{}
@@ -290,7 +290,7 @@
         return $true
     }
 
-    new-aduser -server $setdc  -Description $Description -DisplayName $name -name $name -SamAccountName $name -Surname $name -Enabled $true -Path $ouLocation -AccountPassword (ConvertTo-SecureString ($pwd) -AsPlainText -force)
+    new-aduser -server $setdc  -Description $Description -DisplayName $name -GivenName $givenname -name $name -SamAccountName $name -Surname $surname -Enabled $true -Path $ouLocation -AccountPassword (ConvertTo-SecureString ($pwd) -AsPlainText -force)
     
     
     
